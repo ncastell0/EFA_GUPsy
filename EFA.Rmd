@@ -1,0 +1,59 @@
+---
+title: "EFA"
+author: Naiara Castello
+output: html_document
+date: "2023-11-12"
+---
+
+
+
+
+# Set up environment
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(car)
+library(ggplot2)
+library(pastecs)
+library(corpcor)
+library(GPArotation)
+library(psych)
+library(tidyverse)
+
+```
+# Initial preparation and analysis
+```{r}
+scs_Data <- read.csv("scs data masterskurs2.csv", header = TRUE)
+scsMatrix <- cor(scs_Data)
+round(scsMatrix, 2)
+
+```
+
+# Assumption Checking
+```{r}
+hist.scs1 <- ggplot(scs_Data, aes(scs1)) +
+  opts(legend.position = "none") +
+  geom_histogram(aes(x = scs1, colour = "black", fill = "white") +
+  labs(x = "Self-Consciousness 1", y = "Density")
+  
+  
+```
+
+## Using a loop:
+```{r}
+for (i in 1:23) {
+  variable_name <- paste("scs", i, sep="")
+  
+  # Create a histogram for each variable
+  hist_plot <- ggplot(scs_Data, aes(x = get(variable_name))) +
+    geom_histogram(aes(y = ..density..), colour = "black", fill = "white") +
+    stat_function(fun = dnorm, args = list(mean = mean(scs_Data[[variable_name]]), sd = sd(scs_Data[[variable_name]])), 
+                  color = "blue", size = 1) +
+    labs(x = variable_name, y = "Density") +
+    theme_minimal()
+  
+  # Save or print the histogram
+  print(hist_plot)
+}
+```
+
