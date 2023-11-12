@@ -1,0 +1,83 @@
+---
+title: "EFA"
+author: Naiara Castello
+output: html_document
+date: "2023-11-12"
+---
+
+
+
+
+# Set up environment
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(car)
+library(ggplot2)
+library(pastecs)
+library(corpcor)
+library(GPArotation)
+library(psych)
+library(tidyverse)
+
+scs_Data <- read.csv("scs data masterskurs2.csv", header = TRUE)
+```
+
+# Assumption Checking
+```{r}
+for (i in 1:23) {
+  variable_name <- paste("scs", i, sep="")
+  
+  # Create a histogram for each variable
+  hist_plot <- ggplot(scs_Data, aes(x = get(variable_name))) +
+    geom_histogram(aes(y = ..density..), colour = "black", fill = "grey", binwidth = 1.0) +
+    stat_function(fun = dnorm, args = list(mean = mean(scs_Data[[variable_name]]), sd = sd(scs_Data[[variable_name]])), 
+                  color = "red", size = 1) +
+    labs(x = variable_name, y = "Density")
+  
+  # Print the histogram
+  print(hist_plot)
+    
+  # Describe
+  desc_stats <- stat.desc(scs_Data[[variable_name]], basic = FALSE, norm = TRUE)
+    print(paste("Variable:", variable_name))
+    print(desc_stats)
+}
+```
+
+# Initial preparation and analysis
+```{r}
+scsMatrix <- cor(scs_Data)
+round(scsMatrix, 2)
+
+## Exclude variables with no correlations above .3
+library(dplyr)
+scs_Data_Clean <- select(scs_Data, -3, -8, -9)
+
+## Analyses
+cortest.bartlett(scs_Data_Clean)
+
+KMO(scs_Data_Clean)
+
+det(cor(scs_Data_Clean))
+```
+
+# Factor extraction
+```{r}
+## Obtain eigenvalue
+fa.eigen <- eigen(scs_Matrix_Clean)
+fa.eigen$values
+
+## Five factor solution
+fa_Five <- fa(scs_Data_Clean, 5,rotate = "oblimin", fm = "pa", residuals = TRUE)
+print.psych(fa_Five)
+
+## Four factor solution
+fa_Four <- fa(scs_Data_Clean, 4,rotate = "oblimin", fm = "pa", residuals = TRUE)
+print.psych(fa_Four)
+
+## Three-factor solution
+fa_Three <- fa(scs_Data_Clean, 3,rotate = "oblimin", fm = "pa", residuals = TRUE)
+print.psych(fa_Three)
+```
+
