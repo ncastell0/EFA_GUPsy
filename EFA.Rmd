@@ -59,7 +59,9 @@ cortest.bartlett(scs_Data_Clean)
 
 KMO(scs_Data_Clean)
 
-det(cor(scs_Data_Clean))
+scs_Matrix_Clean <- cor(scs_Data_Clean)
+
+det(scs_Matrix_Clean)
 ```
 
 # Factor extraction
